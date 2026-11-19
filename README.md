@@ -1,23 +1,26 @@
 # SmartGestão
 
-Sistema de gestão para assistências técnicas (React, sem etapa de build).
-Modo atual: **demonstração** — dados fictícios salvos no navegador (localStorage). Nenhum banco conectado.
+Sistema de gestão para assistências técnicas, construído com React via scripts no navegador e Supabase como backend.
 
-## Arquivos
-- `index.html` — carrega as bibliotecas e os scripts, nesta ordem
-- `styles.css` — visual
-- `config.js` — modo e (futuramente) URL e chave pública do Supabase
-- `utils.js` — formatação, datas e constantes
-- `data-seed.js` — dados demonstrativos
-- `data-repo-local.js` — repositório do modo demonstração
-- `data-repo.js` — escolhe o repositório em uso
-- `data-repo-supabase.js` — placeholder (ainda não carregado)
-- `ui-common.jsx`, `ui-form.jsx`, `ui-crud.jsx` — componentes
-- `screen-dashboard.jsx` — painel
-- `app.jsx` — menu, telas e inicialização
+## Modos de uso
+- **Demonstração local:** utiliza dados fictícios armazenados no navegador (localStorage).
+- **Modo autenticado:** utiliza Supabase Auth e tabelas no schema public, com isolamento por empresa via company_id e políticas RLS.
 
-## Publicar no GitHub Pages
-Settings → Pages → Deploy from a branch → `main` / `(root)`.
+## Arquivos principais
+- index.html — carrega bibliotecas e scripts.
+- config.js — URL do projeto e chave pública (publishable/anon); nunca inserir chave service_role.
+- utils.js — formatação, datas no fuso de São Paulo e constantes.
+- data-repo-supabase.js — leitura e gravação no Supabase.
+- ui-auth.jsx, ui-form.jsx, ui-crud.jsx — autenticação e componentes.
+- app.jsx — telas e regras de negócio.
+
+## Publicação
+O site é publicado pelo GitHub Pages a partir da branch main (raiz do repositório).
+
+## Migração do banco
+Antes de publicar a versão que utiliza inventory.cost e service_orders.technician, execute a migração SQL em supabase/migrations/202611190001_smartgestao_hardening.sql no SQL Editor do Supabase.
 
 ## Segurança
-Nunca coloque chave `service_role` nem senha de banco neste repositório.
+- Nunca coloque chave service_role, senha de banco ou segredos no frontend.
+- O isolamento por empresa depende das políticas RLS do Supabase; filtros do frontend são complementares, não substituem RLS.
+- A função create_company deve manter execução restrita ao papel authenticated e usar search_path vazio com objetos qualificados por schema.
