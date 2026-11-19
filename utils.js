@@ -1,8 +1,14 @@
 // ARQUIVO: utils.js — React, datas, formatação e constantes
 const { useState, useEffect } = React;
 
-const hoje = () => new Date().toISOString().slice(0,10);
-const dias = n => new Date(Date.now()-n*864e5).toISOString().slice(0,10);
+// Datas de calendário no fuso oficial do Brasil, sem depender do fuso do aparelho.
+const dataLocalBR = (data = new Date()) => {
+  const partes = new Intl.DateTimeFormat("en-CA", {timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(data);
+  const p = Object.fromEntries(partes.map(x=>[x.type,x.value]));
+  return p.year+"-"+p.month+"-"+p.day;
+};
+const hoje = () => dataLocalBR();
+const dias = n => dataLocalBR(new Date(Date.now()-Number(n||0)*864e5));
 /* ============ UTILITÁRIOS ============ */
 const uid = () => Math.random().toString(36).slice(2,9);
 const brl = n => Number(n||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
