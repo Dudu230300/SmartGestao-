@@ -93,3 +93,21 @@ td.ac::before{content:none}
 .sfoot b{display:block;color:#fff;margin-bottom:4px}
 .sfoot button{background:none;border:1px solid #3a5a8f;color:#dbe6fa;border-radius:8px;padding:5px 10px;margin:8px 6px 0 0;cursor:pointer;font-size:12px}
 .soon{padding:36px 20px;text-align:center}
+
+/* Ajuste visual completo: interface clara e neutra */
+.side{background:#ffffff;color:#273444;border-right:1px solid #e4e7ec;box-shadow:2px 0 12px rgba(16,24,40,.04)}
+.logo{color:#273444}
+.logo i{background:#e7edf3;color:#344256}
+.nav button{color:#475467}
+.nav button:hover{background:#f2f4f7}
+.nav button.on{background:#e7edf3;color:#344256}
+.sfoot{color:#667085;border-top:1px solid #e4e7ec}
+.sfoot b{color:#273444}
+.sfoot button{border-color:#d0d5dd;color:#475467}
+.auth{background:#f5f6f8}
+.top{background:#ffffff;color:#273444;border-bottom:1px solid #e4e7ec}
+.top button{color:#344256}
+@media(max-width:900px){
+.side{background:#ffffff}
+body::before{background:#ffffff}
+}
