@@ -17,12 +17,12 @@ function App({ctx}){
   const eq=id=>{const e=db.equipamentos.find(x=>x.id===id);return e?e.marca+" "+e.modelo:"—";};
   const go=p=>{setPage(p);setOpen(false);window.scrollTo(0,0);};
   const saveOrdem=async o=>{
-    if(real){await upsert("ordens",o);return;}
+    if(real){await upsert("ordens",o);if(o.status==="Pronto"){const atualizado=await R.load(ctx.company.id);setDb(atualizado);}return;}
     setDb(d=>{
       let ords=d.ordens,lanc=d.lancamentos,rec={...o};
       if(!rec.id){const n=Math.max(0,...d.ordens.map(x=>parseInt((x.numero||"").slice(3),10)||0))+1;rec={...rec,id:uid(),numero:"OS-"+String(n).padStart(4,"0")};ords=[...ords,rec];}
       else ords=ords.map(x=>x.id===rec.id?rec:x);
-      if(rec.status==="Entregue"&&!rec.lancado){rec.lancado=true;ords=ords.map(x=>x.id===rec.id?rec:x);lanc=[...lanc,{id:uid(),tipo:"Receita",descricao:rec.numero+" — "+eq(rec.equipId),categoria:"Serviços",valor:Number(rec.orcamento||0),data:hoje(),status:"Pago"}];}
+      if(rec.status==="Pronto"&&!rec.lancado&&Number(rec.orcamento||0)>0){rec.lancado=true;ords=ords.map(x=>x.id===rec.id?rec:x);lanc=[...lanc,{id:uid(),tipo:"Receita",descricao:rec.numero+" — "+eq(rec.equipId),categoria:"Serviços",valor:Number(rec.orcamento||0),data:hoje(),status:"Pendente"}];}
       return {...d,ordens:ords,lancamentos:lanc};
     });
   };
