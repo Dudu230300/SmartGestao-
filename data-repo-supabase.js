@@ -33,6 +33,26 @@ const MAPA = {
     de:r=>({id:r.id,clienteId:r.customer_id,tipo:r.category||"Celular",marca:r.brand||"",modelo:r.model||"",defeito:r.reported_defect||""}),
     para:o=>({customer_id:o.clienteId||null,category:o.tipo||"Celular",brand:o.marca,model:o.modelo,reported_defect:o.defeito||""})
   },
+  lancamentos:{
+    tabela:"financial_entries",
+    de:r=>({
+      id:r.id,
+      tipo:r.entry_type==="expense"?"Despesa":"Receita",
+      descricao:r.description||"",
+      categoria:r.category||"",
+      valor:Number(r.amount||0),
+      data:r.entry_date||"",
+      status:r.status==="pending"?"Pendente":"Pago"
+    }),
+    para:o=>({
+      entry_type:o.tipo==="Despesa"?"expense":"income",
+      description:o.descricao,
+      category:o.categoria||null,
+      amount:Number(o.valor||0),
+      entry_date:o.data||hoje(),
+      status:o.status==="Pendente"?"pending":"paid"
+    })
+  },
   ordens:{
     tabela:"service_orders",
     de:r=>({
