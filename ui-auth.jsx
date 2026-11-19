@@ -136,7 +136,8 @@ function Root(){
   const sair = () => sb.auth.signOut();
   if(demo) return <App ctx={{real:false,repo:repoLocal,onExit:sb?()=>setDemo(false):null}}/>;
   if(sess===undefined) return <div className="empty">Carregando…</div>;
-  if(recovery && sess) return <PasswordRecoveryScreen onDone={()=>setRecovery(false)}/>;\n  if(!sess) return <AuthScreen onDemo={()=>setDemo(true)}/>;
+  if(recovery && sess) return <PasswordRecoveryScreen onDone={()=>setRecovery(false)}/>;
+  if(!sess) return <AuthScreen onDemo={()=>setDemo(true)}/>;
   if(!comp) return <CompanyGate user={sess.user} auto={!troca} onPick={c=>{setComp(c);setTroca(false);}} onSignOut={sair}/>;
   return <App key={comp.id} ctx={{real:true,repo:repoSupabase,company:comp,user:sess.user,onExit:sair,onSwitch:()=>{setTroca(true);setComp(null);}}}/>;
 }
