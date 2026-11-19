@@ -22,16 +22,39 @@ function App({ctx}){
   const eq = id => { const e = db.equipamentos.find(x=>x.id===id); return e ? e.marca+" "+e.modelo : "—"; };
   const go = p => { setPage(p); setOpen(false); window.scrollTo(0,0); };
 
-  const saveOrdem = o => setDb(d => {
-    let ords = d.ordens, lanc = d.lancamentos, rec = {...o};
-    if(!rec.id){ // número automático
-      const n = Math.max(0,...d.ordens.map(x=>parseInt(x.numero.slice(3),10)||0))+1;
-      rec = {...rec,id:uid(),numero:"OS-"+String(n).padStart(4,"0")}; ords = [...ords,rec];
-    } else ords = ords.map(x=>x.id===rec.id?rec:x);
-    if(rec.status==="Entregue" && !rec.lancado){ // gera receita ao entregar
-      rec.lancado = true; ords = ords.map(x=>x.id===rec.id?rec:x);
-      lanc = [...lanc,{id:uid(),tipo:"Receita",descricao:rec.numero+" — "+eq(rec.equipId),categoria:"Serviços",valor:rec.orcamento,data:hoje(),status:"Pago"}];
+  c
+const saveOrdem = async o => {
+  if(real){
+    await upsert("ordens",o);
+    return;
+  }
+
+  setDb(d => {
+    let ords=d.ordens, lanc=d.lancamentos, rec={...o};
+
+    if(!rec.id){
+      const n=Math.max(0,...d.ordens.map(x=>parseInt((x.numero||"").slice(3),10)||0))+1;
+      rec={...rec,id:uid(),numero:"OS-"+String(n).padStart(4,"0")};
+      ords=[...ords,rec];
+    } else {
+      ords=ords.map(x=>x.id===rec.id?rec:x);
     }
+
+    if(rec.status==="Entregue"&&!rec.lancado){
+      rec.lancado=true;
+      ords=ords.map(x=>x.id===rec.id?rec:x);
+      lanc=[...lanc,{
+        id:uid(),tipo:"Receita",
+        descricao:rec.numero+" — "+eq(rec.equipId),
+        categoria:"Serviços",valor:rec.orcamento,
+        data:hoje(),status:"Pago"
+      }];
+    }
+
+    return {...d,ordens:ords,lancamentos:lanc};
+  });
+};
+
     return {...d,ordens:ords,lancamentos:lanc};
   });
 
@@ -93,7 +116,7 @@ function App({ctx}){
     <div className={"scrim"+(open?" open":"")} onClick={()=>setOpen(false)}/>
     <main className="main">
       <div className="top"><button aria-label="Abrir menu" onClick={()=>setOpen(true)}>☰</button>SmartGestão</div>
-      {real && SOON[page] ? <Soon t={SOON[page]}/> : telas[page]}
+      {telas[page]}
     </main>
   </div>;
 }
