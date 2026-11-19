@@ -14,6 +14,9 @@ function erroPt(e){
   return mapa[c] ? mapa[c]+" ["+c+"]" : m;
 }
 
+const STATUS_DB = {"Recebido":"received","Em análise":"analyzing","Aguardando aprovação":"waiting_approval","Em reparo":"in_repair","Pronto":"ready","Entregue":"delivered"};
+const STATUS_UI = Object.fromEntries(Object.entries(STATUS_DB).map(([ui,db])=>[db,ui]));
+
 const MAPA = {
   clientes:{
     tabela:"customers",
@@ -40,7 +43,7 @@ const MAPA = {
       tecnico:"",
       diagnostico:r.diagnosis||r.description||"",
       orcamento:Number(r.budget||0),
-      status:r.status,
+      status:STATUS_UI[r.status]||r.status,
       data:String(r.created_at||"").slice(0,10)
     }),
     para:o=>({
@@ -48,9 +51,9 @@ const MAPA = {
       device_id:o.equipId,
       description:o.diagnostico||"Ordem de serviço",
       diagnosis:o.diagnostico||null,
-      status:o.status||"Recebido",
+      status:STATUS_DB[o.status]||"received",
       budget:o.orcamento===""||o.orcamento==null?null:Number(o.orcamento),
-      ...(o.data?{created_at:o.data}: {})
+      ...(o.data?{created_at:new Date(o.data+"T12:00:00").toISOString()}: {})
     })
   }
 };
