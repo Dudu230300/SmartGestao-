@@ -22,46 +22,32 @@ function App({ctx}){
   const eq = id => { const e = db.equipamentos.find(x=>x.id===id); return e ? e.marca+" "+e.modelo : "—"; };
   const go = p => { setPage(p); setOpen(false); window.scrollTo(0,0); };
 
-  c
-const saveOrdem = async o => {
-  if(real){
-    await upsert("ordens",o);
-    return;
-  }
-
-  setDb(d => {
-    let ords=d.ordens, lanc=d.lancamentos, rec={...o};
-
-    if(!rec.id){
-      const n=Math.max(0,...d.ordens.map(x=>parseInt((x.numero||"").slice(3),10)||0))+1;
-      rec={...rec,id:uid(),numero:"OS-"+String(n).padStart(4,"0")};
-      ords=[...ords,rec];
-    } else {
-      ords=ords.map(x=>x.id===rec.id?rec:x);
+  const saveOrdem = async o => {
+    if(real){
+      await upsert("ordens",o);
+      return;
     }
-
-    if(rec.status==="Entregue"&&!rec.lancado){
-      rec.lancado=true;
-      ords=ords.map(x=>x.id===rec.id?rec:x);
-      lanc=[...lanc,{
-        id:uid(),tipo:"Receita",
-        descricao:rec.numero+" — "+eq(rec.equipId),
-        categoria:"Serviços",valor:rec.orcamento,
-        data:hoje(),status:"Pago"
-      }];
-    }
-
-    return {...d,ordens:ords,lancamentos:lanc};
-  });
-};
-
-    return {...d,ordens:ords,lancamentos:lanc};
-  });
+    setDb(d => {
+      let ords=d.ordens, lanc=d.lancamentos, rec={...o};
+      if(!rec.id){
+        const n=Math.max(0,...d.ordens.map(x=>parseInt((x.numero||"").slice(3),10)||0))+1;
+        rec={...rec,id:uid(),numero:"OS-"+String(n).padStart(4,"0")};
+        ords=[...ords,rec];
+      } else {
+        ords=ords.map(x=>x.id===rec.id?rec:x);
+      }
+      if(rec.status==="Entregue"&&!rec.lancado){
+        rec.lancado=true;
+        ords=ords.map(x=>x.id===rec.id?rec:x);
+        lanc=[...lanc,{id:uid(),tipo:"Receita",descricao:rec.numero+" — "+eq(rec.equipId),categoria:"Serviços",valor:Number(rec.orcamento||0),data:hoje(),status:"Pago"}];
+      }
+      return {...d,ordens:ords,lancamentos:lanc};
+    });
+  };
 
   const wa = r => <a className="btn s n" style={{textDecoration:"none"}} target="_blank" rel="noopener noreferrer"
     href={"https://wa.me/55"+String(r.whatsapp).replace(/\D/g,"")}>WhatsApp</a>;
 
-  const SOON = {dashboard:"Painel",equipamentos:"Equipamentos",ordens:"Ordens de serviço",financeiro:"Financeiro"};
   const telas = {
     dashboard: <Dashboard db={db} go={go}/>,
     clientes: <Crud title="Clientes" sub="Cadastro de clientes e contatos." label="cliente" newLabel="Novo cliente" rows={db.clientes}
@@ -72,7 +58,7 @@ const saveOrdem = async o => {
     equipamentos: <Crud title="Equipamentos" sub="Aparelhos recebidos, marca, modelo e defeito relatado." label="equipamento" newLabel="Novo equipamento" rows={db.equipamentos}
       defaults={{tipo:"Celular",marca:"",modelo:"",defeito:"",clienteId:""}}
       filter={{k:"tipo",opts:TIPOS}} search={r=>[r.tipo,r.marca,r.modelo,r.defeito,cn(r.clienteId)].join(" ")}
-      fields={[{k:"tipo",l:"Tipo",opts:TIPOS,req:1},{k:"clienteId",l:"Cliente",opts:db.clientes.map(c=>[c.id,c.nome])},{k:"marca",l:"Marca",req:1},{k:"modelo",l:"Modelo",req:1},{k:"defeito",l:"Defeito relatado",t:"area",w:1,req:1}]}
+      fields={[{k:"tipo",l:"Tipo",opts:TIPOS,req:1},{k:"clienteId",l:"Cliente",opts:db.clientes.map(c=>[c.id,c.nome]),req:real?1:0},{k:"marca",l:"Marca",req:1},{k:"modelo",l:"Modelo",req:1},{k:"defeito",l:"Defeito relatado",t:"area",w:1,req:1}]}
       cols={[{l:"Tipo",r:r=>r.tipo},{l:"Aparelho",r:r=><b>{r.marca} {r.modelo}</b>},{l:"Defeito",r:r=>r.defeito},{l:"Cliente",r:r=>cn(r.clienteId)}]}
       onSave={r=>upsert("equipamentos",r)} onDel={id=>remove("equipamentos",id)}/>,
     ordens: <Crud title="Ordens de serviço" sub="Acompanhe cada aparelho da entrada até a entrega." label="ordem de serviço" newLabel="Nova OS" rows={db.ordens}
@@ -80,9 +66,9 @@ const saveOrdem = async o => {
       filter={{k:"status",opts:STATUS}} search={r=>[r.numero,cn(r.clienteId),eq(r.equipId),r.tecnico,r.diagnostico,r.status].join(" ")}
       fields={[{k:"clienteId",l:"Cliente",opts:db.clientes.map(c=>[c.id,c.nome]),req:1},
         {k:"equipId",l:"Equipamento",opts:db.equipamentos.map(e=>[e.id,e.marca+" "+e.modelo+" — "+cn(e.clienteId)]),req:1},
-        {k:"tecnico",l:"Técnico responsável",opts:TECNICOS,req:1},{k:"status",l:"Status",opts:STATUS,req:1},
+        ...(!real?[{k:"tecnico",l:"Técnico responsável",opts:TECNICOS,req:1}]:[]),{k:"status",l:"Status",opts:STATUS,req:1},
         {k:"diagnostico",l:"Diagnóstico",t:"area",w:1},{k:"orcamento",l:"Orçamento (R$)",t:"number"},{k:"data",l:"Data de entrada",t:"date"}]}
-      cols={[{l:"Nº",r:r=><b>{r.numero}</b>},{l:"Cliente",r:r=>cn(r.clienteId)},{l:"Equipamento",r:r=>eq(r.equipId)},{l:"Técnico",r:r=>r.tecnico},
+      cols={[{l:"Nº",r:r=><b>{r.numero}</b>},{l:"Cliente",r:r=>cn(r.clienteId)},{l:"Equipamento",r:r=>eq(r.equipId)},{l:"Técnico",r:r=>real?"—":r.tecnico},
         {l:"Status",r:r=><Badge c={COR[r.status]}>{r.status}</Badge>},{l:"Orçamento",r:r=>brl(r.orcamento)},{l:"Entrada",r:r=>dt(r.data)}]}
       onSave={saveOrdem} onDel={id=>remove("ordens",id)}/>,
     estoque: <Crud title="Estoque de peças" sub="Controle de quantidades, custo e preço de venda." label="peça" newLabel="Nova peça" rows={db.pecas}
