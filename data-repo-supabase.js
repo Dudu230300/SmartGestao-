@@ -14,7 +14,7 @@ function erroPt(e){
   return mapa[c] ? mapa[c]+" ["+c+"]" : m;
 }
 
-const STATUS_DB = {"Recebido":"received","Em análise":"analyzing","Aguardando aprovação":"waiting_approval","Em reparo":"in_repair","Pronto":"ready","Entregue":"delivered"};
+const STATUS_DB = {"Recebido":"received","Em análise":"diagnosis","Aguardando aprovação":"waiting_approval","Em reparo":"in_progress","Pronto":"completed","Entregue":"delivered"};
 const STATUS_UI = Object.fromEntries(Object.entries(STATUS_DB).map(([ui,db])=>[db,ui]));
 
 const MAPA = {
