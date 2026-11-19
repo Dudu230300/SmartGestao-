@@ -16,6 +16,20 @@ function erroPt(e){
 
 const STATUS_DB = {"Recebido":"received","Em análise":"diagnosis","Aguardando aprovação":"waiting_approval","Em reparo":"in_progress","Pronto":"completed","Entregue":"delivered"};
 const STATUS_UI = Object.fromEntries(Object.entries(STATUS_DB).map(([ui,db])=>[db,ui]));
+const statusParaDB = status => {
+  const s = String(status || "Recebido").trim().toLocaleLowerCase("pt-BR");
+  const aliases = {
+    "recebido":"received",
+    "em análise":"diagnosis",
+    "em analise":"diagnosis",
+    "aguardando aprovação":"waiting_approval",
+    "aguardando aprovacao":"waiting_approval",
+    "em reparo":"in_progress",
+    "pronto":"completed",
+    "entregue":"delivered"
+  };
+  return aliases[s] || "received";
+};
 
 const MAPA = {
   clientes:{
@@ -71,7 +85,7 @@ const MAPA = {
       device_id:o.equipId,
       description:o.diagnostico||"Ordem de serviço",
       diagnosis:o.diagnostico||null,
-      status:STATUS_DB[o.status]||"received",
+      status:statusParaDB(o.status),
       budget:o.orcamento===""||o.orcamento==null?null:Number(o.orcamento),
       ...(o.data?{created_at:new Date(o.data+"T12:00:00").toISOString()}: {})
     })
