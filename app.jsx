@@ -2,14 +2,22 @@
 /* ============ APLICAÇÃO ============ */
 const MENU = [["dashboard","📊","Painel"],["ordens","🛠️","Ordens de serviço"],["clientes","👥","Clientes"],["equipamentos","📱","Equipamentos"],["estoque","📦","Estoque de peças"],["financeiro","💰","Financeiro"]];
 
-function App(){
-  const [db,setDb] = useState(null), [page,setPage] = useState("dashboard"), [open,setOpen] = useState(false);
-  useEffect(()=>{ repo.load().then(setDb); },[]);
-  useEffect(()=>{ if(db) repo.save(db); },[db]);
-  if(!db) return <div className="empty">Carregando…</div>;
+function App({ctx}){
+  const real = ctx.real, R = ctx.repo;
+  const [db,setDb] = useState(null), [page,setPage] = useState("dashboard"), [open,setOpen] = useState(false), [msg,setMsg] = useState("");
+  useEffect(()=>{ R.load(real?ctx.company.id:undefined).then(setDb).catch(e=>setMsg(erroPt(e))); },[]);
+  useEffect(()=>{ if(db && !real) R.save(db); },[db]);
+  if(!db) return msg ? <div className="empty" role="alert">{msg}<br/><br/><button className="btn" onClick={ctx.onExit||(()=>location.reload())}>{ctx.onExit?"Voltar":"Recarregar"}</button></div> : <div className="empty">Carregando…</div>;
 
-  const upsert = (tab,r) => setDb(d => ({...d,[tab]: r.id ? d[tab].map(x=>x.id===r.id?r:x) : [...d[tab],{...r,id:uid()}]}));
-  const remove = (tab,id) => setDb(d => ({...d,[tab]: d[tab].filter(x=>x.id!==id)}));
+  const upsert = async (tab,r) => {
+    if(!real) return setDb(d => ({...d,[tab]: r.id ? d[tab].map(x=>x.id===r.id?r:x) : [...d[tab],{...r,id:uid()}]}));
+    const s = await R.save(tab,r,ctx.company.id);
+    setDb(d => ({...d,[tab]: r.id ? d[tab].map(x=>x.id===s.id?s:x) : [...d[tab],s]}));
+  };
+  const remove = async (tab,id) => {
+    if(real) await R.remove(tab,id,ctx.company.id);
+    setDb(d => ({...d,[tab]: d[tab].filter(x=>x.id!==id)}));
+  };
   const cn = id => (db.clientes.find(x=>x.id===id)||{}).nome||"—";
   const eq = id => { const e = db.equipamentos.find(x=>x.id===id); return e ? e.marca+" "+e.modelo : "—"; };
   const go = p => { setPage(p); setOpen(false); window.scrollTo(0,0); };
@@ -30,12 +38,13 @@ function App(){
   const wa = r => <a className="btn s n" style={{textDecoration:"none"}} target="_blank" rel="noopener noreferrer"
     href={"https://wa.me/55"+String(r.whatsapp).replace(/\D/g,"")}>WhatsApp</a>;
 
+  const SOON = {dashboard:"Painel",equipamentos:"Equipamentos",ordens:"Ordens de serviço",financeiro:"Financeiro"};
   const telas = {
     dashboard: <Dashboard db={db} go={go}/>,
     clientes: <Crud title="Clientes" sub="Cadastro de clientes e contatos." label="cliente" newLabel="Novo cliente" rows={db.clientes}
-      defaults={{nome:"",telefone:"",whatsapp:""}}
-      fields={[{k:"nome",l:"Nome completo",req:1,w:1},{k:"telefone",l:"Telefone",t:"tel"},{k:"whatsapp",l:"WhatsApp",t:"tel",req:1}]}
-      cols={[{l:"Nome",r:r=><b>{r.nome}</b>},{l:"Telefone",r:r=>r.telefone||"—"},{l:"WhatsApp",r:r=>r.whatsapp}]}
+      defaults={real?{nome:"",telefone:"",email:"",documento:""}:{nome:"",telefone:"",whatsapp:""}}
+      fields={real?[{k:"nome",l:"Nome completo",req:1,w:1},{k:"telefone",l:"Telefone / WhatsApp",t:"tel",req:1},{k:"email",l:"E-mail",t:"email"},{k:"documento",l:"CPF / CNPJ"}]:[{k:"nome",l:"Nome completo",req:1,w:1},{k:"telefone",l:"Telefone",t:"tel"},{k:"whatsapp",l:"WhatsApp",t:"tel",req:1}]}
+      cols={real?[{l:"Nome",r:r=><b>{r.nome}</b>},{l:"Telefone / WhatsApp",r:r=>r.telefone||"—"},{l:"E-mail",r:r=>r.email||"—"}]:[{l:"Nome",r:r=><b>{r.nome}</b>},{l:"Telefone",r:r=>r.telefone||"—"},{l:"WhatsApp",r:r=>r.whatsapp}]}
       extra={r=>r.whatsapp?wa(r):null} onSave={r=>upsert("clientes",r)} onDel={id=>remove("clientes",id)}/>,
     equipamentos: <Crud title="Equipamentos" sub="Aparelhos recebidos, marca, modelo e defeito relatado." label="equipamento" newLabel="Novo equipamento" rows={db.equipamentos}
       defaults={{tipo:"Celular",marca:"",modelo:"",defeito:"",clienteId:""}}
@@ -55,9 +64,9 @@ function App(){
       onSave={saveOrdem} onDel={id=>remove("ordens",id)}/>,
     estoque: <Crud title="Estoque de peças" sub="Controle de quantidades, custo e preço de venda." label="peça" newLabel="Nova peça" rows={db.pecas}
       defaults={{nome:"",sku:"",qtd:"",minimo:"",custo:"",preco:""}}
-      fields={[{k:"nome",l:"Peça",req:1,w:1},{k:"sku",l:"Código (SKU)"},{k:"qtd",l:"Quantidade",t:"number",req:1},{k:"minimo",l:"Estoque mínimo",t:"number"},{k:"custo",l:"Custo (R$)",t:"number"},{k:"preco",l:"Preço de venda (R$)",t:"number"}]}
+      fields={[{k:"nome",l:"Peça",req:1,w:1},{k:"sku",l:"Código (SKU)"},{k:"qtd",l:"Quantidade",t:"number",req:1},{k:"minimo",l:"Estoque mínimo",t:"number"},{k:"custo",l:"Custo (R$)",t:"number"},{k:"preco",l:"Preço de venda (R$)",t:"number"}].filter(f=>!(real&&f.k==="custo"))}
       cols={[{l:"Peça",r:r=><b>{r.nome}</b>},{l:"Código",r:r=>r.sku||"—"},
-        {l:"Quantidade",r:r=><Badge c={r.qtd<=r.minimo?"g4":"g1"}>{r.qtd} un.{r.qtd<=r.minimo?" · repor":""}</Badge>},{l:"Custo",r:r=>brl(r.custo)},{l:"Venda",r:r=>brl(r.preco)}]}
+        {l:"Quantidade",r:r=><Badge c={r.qtd<=r.minimo?"g4":"g1"}>{r.qtd} un.{r.qtd<=r.minimo?" · repor":""}</Badge>},...(real?[]:[{l:"Custo",r:r=>brl(r.custo)}]),{l:"Venda",r:r=>brl(r.preco)}]}
       onSave={r=>upsert("pecas",r)} onDel={id=>remove("pecas",id)}/>,
     financeiro: (() => {
       const s = t => db.lancamentos.filter(l=>l.tipo===t).reduce((a,l)=>a+l.valor,0);
@@ -79,13 +88,13 @@ function App(){
     <aside className={"side"+(open?" open":"")}>
       <div className="logo"><i>🔧</i>SmartGestão</div>
       <nav className="nav">{MENU.map(m=><button key={m[0]} className={page===m[0]?"on":""} onClick={()=>go(m[0])}><span>{m[1]}</span>{m[2]}</button>)}</nav>
-      <div className="sfoot">Modo demonstração<br/>Dados salvos neste navegador</div>
+      <div className="sfoot">{real ? <div><b>{ctx.company.name}</b>{ctx.user.email}<br/><button onClick={ctx.onSwitch}>Trocar empresa</button><button onClick={ctx.onExit}>Sair</button></div> : <div>Modo demonstração<br/>Dados salvos neste navegador{ctx.onExit && <div><button onClick={ctx.onExit}>Voltar ao login</button></div>}</div>}</div>
     </aside>
     <div className={"scrim"+(open?" open":"")} onClick={()=>setOpen(false)}/>
     <main className="main">
       <div className="top"><button aria-label="Abrir menu" onClick={()=>setOpen(true)}>☰</button>SmartGestão</div>
-      {telas[page]}
+      {real && SOON[page] ? <Soon t={SOON[page]}/> : telas[page]}
     </main>
   </div>;
 }
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+ReactDOM.createRoot(document.getElementById("root")).render(<Root/>);

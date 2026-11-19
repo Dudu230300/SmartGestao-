@@ -1,4 +1,4 @@
-// ARQUIVO: data-repo.js — escolhe qual repositório o app usa
-// Hoje sempre o modo demonstração. Futuramente:
-// const repo = SMARTGESTAO_CONFIG.modo === "supabase" ? repoSupabase : repoLocal;
+// ARQUIVO: data-repo.js — repositório padrão (modo demonstração)
+// O app recebe o repositório pelo componente Root (ui-auth.jsx):
+// demonstração = repoLocal (localStorage); com login = repoSupabase.
 const repo = repoLocal;

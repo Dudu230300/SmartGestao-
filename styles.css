@@ -85,3 +85,15 @@ td::before{content:attr(data-l);color:var(--mut);font-size:13px;text-align:left}
 td.ac::before{content:none}
 .fg{grid-template-columns:1fr}
 }
+
+/* ===== Etapa 1: login, empresa e avisos ===== */
+.auth{min-height:100vh;display:grid;place-items:center;padding:20px;background:var(--navy)}
+.auth .box{background:var(--card);border-radius:18px;width:100%;max-width:400px;padding:26px}
+.auth .fld{margin-bottom:12px}
+.auth .btn{width:100%}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.lnk{display:block;width:100%;background:none;border:0;color:var(--mut);margin-top:12px;cursor:pointer;text-decoration:underline}
+.ok{color:var(--green);font-size:14px;margin-top:10px}
+.sfoot b{display:block;color:#fff;margin-bottom:4px}
+.sfoot button{background:none;border:1px solid #3a5a8f;color:#dbe6fa;border-radius:8px;padding:5px 10px;margin:8px 6px 0 0;cursor:pointer;font-size:12px}
+.soon{padding:36px 20px;text-align:center}
