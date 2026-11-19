@@ -48,6 +48,7 @@ function App({ctx}){
   const wa = r => <a className="btn s n" style={{textDecoration:"none"}} target="_blank" rel="noopener noreferrer"
     href={"https://wa.me/55"+String(r.whatsapp).replace(/\D/g,"")}>WhatsApp</a>;
 
+  const SOON = {financeiro:"Financeiro"};
   const telas = {
     dashboard: <Dashboard db={db} go={go}/>,
     clientes: <Crud title="Clientes" sub="Cadastro de clientes e contatos." label="cliente" newLabel="Novo cliente" rows={db.clientes}
@@ -102,7 +103,7 @@ function App({ctx}){
     <div className={"scrim"+(open?" open":"")} onClick={()=>setOpen(false)}/>
     <main className="main">
       <div className="top"><button aria-label="Abrir menu" onClick={()=>setOpen(true)}>☰</button>SmartGestão</div>
-      {telas[page]}
+      {real && SOON[page] ? <Soon t={SOON[page]}/> : telas[page]}
     </main>
   </div>;
 }
