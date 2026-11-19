@@ -121,7 +121,7 @@ const repoSupabase = {
       : sb.from(m.tabela).insert({...row,company_id:companyId});
 
     const {data,error}=await q.select().single();
-    if(error) throw new Error(m.tabela+": "+erroPt(error));
+    if(error) throw new Error(m.tabela+": "+erroPt(error)+(tab==="ordens"?" | status enviado: "+String(row.status)+" | código: "+String(error.code||"—")+" | detalhe: "+String(error.details||"—"):""));
     return m.de(data);
   },
 
