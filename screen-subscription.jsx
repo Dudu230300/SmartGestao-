@@ -1,4 +1,15 @@
 // ARQUIVO: screen-subscription.jsx — contratação e acompanhamento do plano SmartGestão
+async function subscriptionErrorMessage(ex){
+  try{
+    const response=ex?.context;
+    if(response&&typeof response.clone==="function"){
+      const body=await response.clone().json();
+      if(body?.details)return `${body.error||"Falha na assinatura"}: ${body.details}`;
+      if(body?.error)return body.error;
+    }
+  }catch(_){ }
+  return ex?.message||"Não foi possível concluir a operação da assinatura.";
+}
 function SubscriptionScreen({ctx}){
   const [nome,setNome]=useState(ctx.user?.user_metadata?.full_name||"");
   const [cpf,setCpf]=useState("");
@@ -22,7 +33,7 @@ function SubscriptionScreen({ctx}){
         setPaymentUrl("");
       }
     }catch(ex){
-      setErro(ex.message||"Não foi possível consultar a assinatura.");
+      setErro(await subscriptionErrorMessage(ex));
     }finally{setLoading(false);}
   };
   useEffect(()=>{if(!ctx.real){setLoading(false);return;}carregar();},[]);
@@ -42,7 +53,7 @@ function SubscriptionScreen({ctx}){
       if(!data?.success)throw new Error(data?.error||"Não foi possível iniciar a assinatura.");
       setStatus(data.status||"pending");
       setPaymentUrl(data.payment_url||"");
-    }catch(ex){setErro(ex.message||"Não foi possível iniciar a assinatura.");}
+    }catch(ex){setErro(await subscriptionErrorMessage(ex));}
     finally{setBusy(false);}
   };
 
