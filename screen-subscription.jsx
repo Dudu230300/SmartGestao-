@@ -25,7 +25,7 @@ function SubscriptionScreen({ctx}){
       setErro(ex.message||"Não foi possível consultar a assinatura.");
     }finally{setLoading(false);}
   };
-  useEffect(()=>{carregar();},[]);
+  useEffect(()=>{if(!ctx.real){setLoading(false);return;}carregar();},[]);
 
   const contratar=async e=>{
     e.preventDefault();setErro("");setBusy(true);
