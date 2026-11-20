@@ -96,7 +96,13 @@ Deno.serve(async (req) => {
         .select("status, amount, next_due_date, asaas_subscription_id")
         .eq("company_id", companyId)
         .maybeSingle();
-      if (statusError) return json({ error: "Não foi possível consultar a assinatura." }, 500);
+      if (statusError) {
+        console.error("Falha ao consultar company_subscriptions:", statusError.message, statusError.code, statusError.details);
+        return json({
+          error: "Não foi possível consultar a assinatura.",
+          details: statusError.message || "Erro desconhecido ao consultar company_subscriptions.",
+        }, 500);
+      }
       if (!saved) return json({ has_subscription: false });
       let paymentUrl: string | null = null;
       try {
