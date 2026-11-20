@@ -223,3 +223,83 @@ body::before{background:#ffffff}
 .auth-recovery-panel{grid-column:1/-1;min-height:100vh}
 .auth-recovery-panel .auth-card{max-width:440px!important}
 @media(max-width:760px){.auth-login{display:block;padding:0;background:#f3f5f7}.auth-showcase{display:none}.auth-panel{min-height:100vh;padding:22px 16px;align-content:center}.auth-card{max-width:460px!important;padding:30px 24px!important}.auth-card-brand{display:block}.auth-card .brand-lockup{margin-bottom:27px}.auth-recovery-panel{min-height:100vh}}
+
+
+/* ===== SmartGestão · experiência interna profissional ===== */
+:root{--navy:#263747;--navy2:#344b5b;--green:#557d73;--greenbg:#e7f0ec;--bg:#f4f6f8;--card:#fff;--tx:#273444;--mut:#74808c;--bd:#e5e9ee;--blue:#526f8b;--bluebg:#eaf0f6}
+.app{background:#f4f6f8}
+.side{width:264px;padding:22px 14px 16px;background:#fff;border-right:1px solid #e8edf0;box-shadow:5px 0 24px rgba(35,52,68,.035)}
+.logo{gap:12px;padding:2px 9px 30px;color:#293b49;font-size:18px;letter-spacing:-.5px}
+.logo i{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#e2eee9,#c9ddd4);color:#36584f;box-shadow:0 5px 14px rgba(55,91,79,.1)}
+.logo i svg{width:30px;height:30px}
+.logo>span{display:flex;flex-direction:column;line-height:1.1}
+.logo small{font-size:8px;letter-spacing:1.55px;color:#8b989e;margin-top:6px}
+.nav-caption{padding:0 12px 10px;color:#9aa4ad;font-size:9px;font-weight:800;letter-spacing:1.5px}
+.nav{gap:5px}
+.nav button{position:relative;min-height:46px;padding:8px 11px;border-radius:11px;color:#667481;font-size:13px;font-weight:600;gap:12px;transition:background .18s,color .18s}
+.nav button:hover{background:#f4f7f6;color:#344f49}
+.nav button.on{background:#eaf1ee;color:#345b50;box-shadow:inset 0 0 0 1px #e0ebe5}
+.nav-icon{width:29px;height:29px;display:grid;place-items:center;border-radius:9px;background:#f3f5f6;font-size:15px;filter:saturate(.75)}
+.nav button.on .nav-icon{background:#dce9e2}
+.nav-label{flex:1}
+.nav-active{width:5px;height:5px;border-radius:50%;background:#5c8978}
+.side-bottom{margin-top:auto}
+.side-status{display:flex;align-items:center;gap:8px;margin:0 5px 13px;padding:10px 11px;border-radius:10px;background:#f6f8f7;color:#788780;font-size:10px;font-weight:650}
+.status-dot,.workspace-live i{width:7px;height:7px;border-radius:50%;background:#5da17d;box-shadow:0 0 0 3px #e4f1e9}
+.sfoot{margin:0;padding:14px 8px 2px;border-top:1px solid #edf0f2;color:#7a8791;font-size:11px}
+.sfoot b{font-size:12px;color:#344451;margin-bottom:5px}
+.user-email{display:block;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8b969e;font-size:10px}
+.account-actions{display:flex;gap:6px;flex-wrap:wrap}
+.sfoot button{margin:10px 5px 0 0;padding:6px 9px;border-radius:7px;background:#fff;border:1px solid #e2e7ea;color:#617078;font-size:10px}
+.main{margin-left:264px;padding:0 32px 60px;min-width:0}
+.workspace-top{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid #e8edf0;background:rgba(255,255,255,.72);margin:0 -32px;padding:12px 32px}
+.workspace-left{display:flex;align-items:center;gap:12px}
+.workspace-overline{display:block;color:#9aa5ad;font-size:9px;font-weight:800;letter-spacing:1.4px}
+.workspace-title{font-size:17px;font-weight:750;letter-spacing:-.35px;color:#2d3e4b;margin-top:3px}
+.workspace-meta{display:flex;align-items:center;gap:18px}
+.workspace-live{display:flex;align-items:center;gap:8px;color:#77847f;font-size:10px;font-weight:650}
+.workspace-live i{display:inline-block}
+.workspace-company{max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:8px 12px;border:1px solid #e8edef;border-radius:9px;background:#fff;color:#53616b;font-size:11px;font-weight:650}
+.workspace-content{padding-top:28px}
+.mobile-menu{display:none}
+.workspace-content h1{font-size:25px;letter-spacing:-.8px;color:#293b49}
+.workspace-content>.sub{font-size:13px;margin:4px 0 22px}
+.card{border-color:#e8edf0;border-radius:15px;box-shadow:0 3px 12px rgba(32,49,64,.025);transition:box-shadow .18s,border-color .18s}
+.card:hover{border-color:#dce5e2;box-shadow:0 7px 22px rgba(32,49,64,.055)}
+.kpi{border-left:0;position:relative;overflow:hidden;padding:19px 20px}
+.kpi:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#71988b}
+.kpi.b:before{background:#7189a1}.kpi.w:before{background:#d5a65c}.kpi.r:before{background:#c77c7c}
+.kpi small{font-size:11px;font-weight:650;letter-spacing:.15px}
+.kpi b{font-size:26px;letter-spacing:-.8px;color:#2e414d;margin-top:7px}
+.grid{gap:16px;margin-bottom:18px}
+.two{gap:16px}
+.card h3{color:#344653;font-size:14px;letter-spacing:-.15px}
+.bar{gap:12px;margin:12px 0;color:#65727d}
+.bar div{height:8px;background:#f0f3f4}
+.bar div i{background:linear-gradient(90deg,#73998c,#a4beb2)}
+.btn{background:#52796f;border-radius:9px;box-shadow:0 2px 5px rgba(54,91,79,.1)}
+.btn.g{box-shadow:none}
+.tools input,.fld input,.fld select,.fld textarea{border-color:#e1e7eb;border-radius:9px}
+.chip{border-radius:9px}
+.chip.on{background:#344b5b;border-color:#344b5b}
+th{font-size:10px;text-transform:uppercase;letter-spacing:.65px;background:#fafbfc}
+td{font-size:12px}
+.tw{border-radius:15px}
+@media(max-width:900px){
+.side{width:280px;top:0;padding-top:calc(20px + env(safe-area-inset-top,0px))}
+.main{margin-left:0;padding:0 16px 48px}
+.workspace-top{min-height:72px;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:0 -16px;padding:10px 16px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px)}
+.workspace-overline{font-size:8px}
+.workspace-title{font-size:15px}
+.mobile-menu{display:grid;place-items:center;width:36px;height:36px;border:1px solid #e8edef;border-radius:10px;background:#fff;color:#425b55;font-size:18px}
+.workspace-meta{gap:8px}
+.workspace-live{display:none}
+.workspace-company{max-width:125px;padding:7px 9px;font-size:9px}
+.workspace-content{padding-top:22px}
+.workspace-content h1{font-size:22px}
+.grid{gap:10px}
+.kpi{padding:15px 13px}
+.kpi b{font-size:20px}
+.card{border-radius:13px}
+}
+@media(max-width:390px){.workspace-company{max-width:100px}.workspace-overline{letter-spacing:.8px}.grid{gap:8px}}
