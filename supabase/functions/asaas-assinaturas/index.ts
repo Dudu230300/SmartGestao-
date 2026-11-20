@@ -60,8 +60,8 @@ Deno.serve(async (req) => {
     const phone = String(body.phone || "").replace(/\D/g, "");
     const email = String(userData.user.email || "").trim();
 
-    if (!companyId || !customerName || !email || ![11, 14].includes(cpfCnpj.length)) {
-      return json({ error: "Informe a empresa, nome do responsável e CPF/CNPJ válido." }, 400);
+    if (!companyId || !email) {
+      return json({ error: "Não foi possível identificar a empresa ou o e-mail da conta." }, 400);
     }
 
     const admin = createClient(supabaseUrl, serviceKey, {
@@ -85,13 +85,6 @@ Deno.serve(async (req) => {
       .eq("company_id", companyId)
       .maybeSingle();
 
-    if (current && ["pending", "active", "past_due"].includes(current.status)) {
-      return json({
-        error: "Esta empresa já possui uma assinatura em andamento.",
-        status: current.status,
-      }, 409);
-    }
-
     const asaasBase = "https://api-sandbox.asaas.com/v3";
     const asaasHeaders = {
       "Content-Type": "application/json",
@@ -100,6 +93,30 @@ Deno.serve(async (req) => {
       "User-Agent": "SmartGestao/1.0",
     };
 
+    if (current && ["pending", "active", "past_due"].includes(current.status)) {
+      let paymentUrl: string | null = null;
+      try {
+        const paymentsResponse = await fetch(
+          asaasBase + "/subscriptions/" + current.asaas_subscription_id + "/payments?limit=1",
+          { headers: asaasHeaders },
+        );
+        const paymentsData = await paymentsResponse.json();
+        paymentUrl = paymentsData.data?.[0]?.invoiceUrl || paymentsData.data?.[0]?.bankSlipUrl || null;
+      } catch (_) {
+        // A cobrança pode ainda não estar disponível.
+      }
+      return json({
+        success: true,
+        already_exists: true,
+        status: current.status,
+        payment_url: paymentUrl,
+        message: "Esta empresa já possui uma assinatura em andamento.",
+      });
+    }
+
+    if (!customerName || ![11, 14].includes(cpfCnpj.length)) {
+      return json({ error: "Informe o nome do responsável e um CPF/CNPJ válido." }, 400);
+    }
     // Reutiliza o cadastro Asaas pelo CPF/CNPJ para evitar duplicidade.
     const customerSearch = await fetch(
       asaasBase + "/customers?cpfCnpj=" + encodeURIComponent(cpfCnpj) + "&limit=10",
