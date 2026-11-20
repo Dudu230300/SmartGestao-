@@ -4,8 +4,23 @@ const MENU = [["dashboard","📊","Painel"],["ordens","🛠️","Ordens de servi
 function App({ctx}){
   const real=ctx.real,R=ctx.repo;
   const [db,setDb]=useState(null),[page,setPage]=useState("dashboard"),[open,setOpen]=useState(false),[msg,setMsg]=useState("");
+  const [subscriptionState,setSubscriptionState]=useState(real?"checking":"active");
   useEffect(()=>{R.load(real?ctx.company.id:undefined).then(setDb).catch(e=>setMsg(erroPt(e)));},[]);
+  useEffect(()=>{
+    if(!real||subscriptionState!=="checking") return;
+    let alive=true;
+    sb.functions.invoke("asaas-assinaturas",{body:{action:"status",company_id:ctx.company.id}})
+      .then(({data,error})=>{
+        if(!alive) return;
+        if(error||!data||data.error) setSubscriptionState("unverified");
+        else setSubscriptionState(data.has_subscription&&data.status==="active"?"active":"inactive");
+      }).catch(()=>{if(alive)setSubscriptionState("unverified");});
+    return ()=>{alive=false;};
+  },[real,ctx.company.id,subscriptionState]);
   useEffect(()=>{if(db&&!real)R.save(db);},[db]);
+  if(real&&subscriptionState==="checking") return <div className="empty">Verificando a assinatura da empresa…</div>;
+  if(real&&subscriptionState==="inactive") return <SubscriptionScreen ctx={ctx}/>;
+  if(real&&subscriptionState==="unverified") return <div className="empty" role="alert">Não foi possível confirmar a assinatura agora. Por segurança, o acesso aos módulos está pausado.<br/><br/><button className="btn" onClick={()=>setSubscriptionState("checking")}>Tentar novamente</button></div>;
   if(!db)return msg?<div className="empty" role="alert">{msg}<br/><br/><button className="btn" onClick={ctx.onExit||(()=>location.reload())}>{ctx.onExit?"Voltar":"Recarregar"}</button></div>:<div className="empty">Carregando…</div>;
   const upsert=async(tab,r)=>{
     if(!real)return setDb(d=>({...d,[tab]:r.id?d[tab].map(x=>x.id===r.id?r:x):[...d[tab],{...r,id:uid()}]}));
