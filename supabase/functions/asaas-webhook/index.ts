@@ -32,8 +32,16 @@ Deno.serve(async (req) => {
       event_name: eventName,
       payload,
     });
-    if (eventError?.code === "23505") return json({ received: true, duplicate: true });
-    if (eventError) {
+
+    if (eventError?.code === "23505") {
+      // Se uma tentativa anterior falhou antes de concluir, permite reprocessar o evento.
+      const { data: previous } = await admin
+        .from("asaas_webhook_events")
+        .select("processed_at")
+        .eq("event_id", eventId)
+        .maybeSingle();
+      if (previous?.processed_at) return json({ received: true, duplicate: true });
+    } else if (eventError) {
       console.error("Falha ao registrar evento Asaas:", eventError.message);
       return json({ error: "Não foi possível registrar o evento." }, 500);
     }
@@ -43,7 +51,7 @@ Deno.serve(async (req) => {
     const subscriptionId = String(payment.subscription || subscription.id || "");
 
     if (subscriptionId) {
-      let updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
 
       if (["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"].includes(eventName)) {
         updates.status = "active";
