@@ -68,15 +68,26 @@ Deno.serve(async (req) => {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    const { data: membership, error: membershipError } = await admin
+    // Consulta a associação usando a sessão autenticada do próprio usuário.
+    // O CompanyGate já usa esta mesma permissão para listar as empresas disponíveis.
+    const { data: membership, error: membershipError } = await userClient
       .from("company_members")
       .select("role")
       .eq("company_id", companyId)
       .eq("user_id", userData.user.id)
       .maybeSingle();
 
-    if (membershipError || !membership || !["owner", "admin"].includes(String(membership.role).toLowerCase())) {
-      return json({ error: "Somente o proprietário ou administrador da empresa pode contratar." }, 403);
+    if (membershipError) {
+      console.error("Falha ao validar company_members:", membershipError.message);
+      return json({ error: "Não foi possível validar o acesso à empresa. Tente sair e entrar novamente." }, 403);
+    }
+    if (!membership || !["owner", "admin"].includes(String(membership.role || "").toLowerCase())) {
+      console.error("Acesso negado à assinatura:", {
+        company_id: companyId,
+        user_id: userData.user.id,
+        role: membership?.role || null,
+      });
+      return json({ error: "Sua conta não tem permissão de proprietário ou administrador nesta empresa." }, 403);
     }
 
     if (body.action === "status") {
