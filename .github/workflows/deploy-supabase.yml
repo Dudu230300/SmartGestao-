@@ -20,7 +20,7 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.53.6
 
       - name: Deploy subscription function
         run: supabase functions deploy asaas-assinaturas --project-ref "$SUPABASE_PROJECT_REF"
