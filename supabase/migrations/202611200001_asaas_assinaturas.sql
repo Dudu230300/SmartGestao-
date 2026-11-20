@@ -36,4 +36,8 @@ ALTER TABLE public.asaas_webhook_events ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON TABLE public.company_subscriptions FROM anon, authenticated;
 REVOKE ALL ON TABLE public.asaas_webhook_events FROM anon, authenticated;
 
+-- Permite que apenas a Edge Function, via service_role, gerencie as assinaturas.
+GRANT ALL PRIVILEGES ON TABLE public.company_subscriptions TO service_role;
+GRANT ALL PRIVILEGES ON TABLE public.asaas_webhook_events TO service_role;
+
 COMMIT;
