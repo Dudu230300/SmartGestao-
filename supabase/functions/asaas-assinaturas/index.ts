@@ -79,6 +79,34 @@ Deno.serve(async (req) => {
       return json({ error: "Somente o proprietário ou administrador da empresa pode contratar." }, 403);
     }
 
+    if (body.action === "status") {
+      const { data: saved, error: statusError } = await admin
+        .from("company_subscriptions")
+        .select("status, amount, next_due_date, asaas_subscription_id")
+        .eq("company_id", companyId)
+        .maybeSingle();
+      if (statusError) return json({ error: "Não foi possível consultar a assinatura." }, 500);
+      if (!saved) return json({ has_subscription: false });
+      let paymentUrl: string | null = null;
+      try {
+        const statusResponse = await fetch(
+          "https://api-sandbox.asaas.com/v3/subscriptions/" + saved.asaas_subscription_id + "/payments?limit=1",
+          { headers: { "access_token": asaasKey, "Accept": "application/json" } },
+        );
+        const statusData = await statusResponse.json();
+        paymentUrl = statusData.data?.[0]?.invoiceUrl || statusData.data?.[0]?.bankSlipUrl || null;
+      } catch (_) {
+        // O link pode ainda não ter sido gerado pelo Asaas.
+      }
+      return json({
+        has_subscription: true,
+        status: saved.status,
+        amount: saved.amount,
+        next_due_date: saved.next_due_date,
+        payment_url: paymentUrl,
+      });
+    }
+
     const { data: current } = await admin
       .from("company_subscriptions")
       .select("status, asaas_subscription_id")
