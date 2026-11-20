@@ -63,13 +63,23 @@ function App({ctx}){
         onSave={r=>upsert("lancamentos",r)} onDel={id=>remove("lancamentos",id)}/>;
     })()
   };
+  const current=MENU.find(m=>m[0]===page)||MENU[0];
   return <div className="app">
-    <aside className={"side"+(open?" open":"")}><div className="logo"><i>🔧</i>SmartGestão</div>
-      <nav className="nav">{MENU.map(m=><button key={m[0]} className={page===m[0]?"on":""} onClick={()=>go(m[0])}><span>{m[1]}</span>{m[2]}</button>)}</nav>
-      <div className="sfoot">{real?<div><b>{ctx.company.name}</b>{ctx.user.email}<br/><button onClick={ctx.onSwitch}>Trocar empresa</button><button onClick={ctx.onExit}>Sair</button></div>:<div>Modo demonstração<br/>Dados salvos neste navegador{ctx.onExit&&<div><button onClick={ctx.onExit}>Voltar ao login</button></div>}</div>}</div>
+    <aside className={"side"+(open?" open":"")}>
+      <div className="logo"><i><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3.5 34 9v10.2c0 8.2-5.8 13.8-14 17.3C11.8 33 6 27.4 6 19.2V9l14-5.5Z" fill="none" stroke="currentColor" strokeWidth="2.5"/><path d="M13 25V15h4l6 7v-7h4v10h-4l-6-7v7z" fill="currentColor"/></svg></i><span>SmartGestão<small>GESTÃO INTELIGENTE</small></span></div>
+      <div className="nav-caption">MENU PRINCIPAL</div>
+      <nav className="nav">{MENU.map(m=><button key={m[0]} aria-current={page===m[0]?"page":undefined} className={page===m[0]?"on":""} onClick={()=>go(m[0])}><span className="nav-icon">{m[1]}</span><span className="nav-label">{m[2]}</span>{page===m[0]&&<i className="nav-active"/>}</button>)}</nav>
+      <div className="side-bottom"><div className="side-status"><span className="status-dot"/> Sistema operacional</div>
+        <div className="sfoot">{real?<div><b>{ctx.company.name}</b><span className="user-email">{ctx.user.email}</span><div className="account-actions"><button onClick={ctx.onSwitch}>Trocar empresa</button><button onClick={ctx.onExit}>Sair</button></div></div>:<div><b>Modo demonstração</b><span className="user-email">Dados salvos neste navegador</span>{ctx.onExit&&<div className="account-actions"><button onClick={ctx.onExit}>Voltar ao login</button></div>}</div>}</div>
+      </div>
     </aside>
     <div className={"scrim"+(open?" open":"")} onClick={()=>setOpen(false)}/>
-    <main className="main"><div className="top"><button aria-label="Abrir menu" onClick={()=>setOpen(true)}>☰</button>SmartGestão</div>{real&&SOON[page]?<Soon t={SOON[page]}/>:telas[page]}</main>
+    <main className="main">
+      <header className="workspace-top"><div className="workspace-left"><button className="mobile-menu" aria-label="Abrir menu" onClick={()=>setOpen(true)}>☰</button><div><span className="workspace-overline">SMARTGESTÃO / {current[2].toUpperCase()}</span><div className="workspace-title">{current[2]}</div></div></div>
+        <div className="workspace-meta"><span className="workspace-live"><i/> Ambiente seguro</span><span className="workspace-company">{real?ctx.company.name:"Ambiente de demonstração"}</span></div>
+      </header>
+      <section className="workspace-content">{real&&SOON[page]?<Soon t={SOON[page]}/>:telas[page]}</section>
+    </main>
   </div>;
 }
 ReactDOM.createRoot(document.getElementById("root")).render(<Root/>);
