@@ -57,7 +57,13 @@ Deno.serve(async (req) => {
         updates.status = "active";
         updates.last_payment_id = payment.id || null;
         updates.last_payment_status = payment.status || eventName;
-      } else if (eventName === "PAYMENT_OVERDUE") {
+      } else if ([
+        "PAYMENT_OVERDUE",
+        "PAYMENT_REFUNDED",
+        "PAYMENT_PARTIALLY_REFUNDED",
+        "PAYMENT_RECEIVED_IN_CASH_UNDONE",
+        "PAYMENT_CHARGEBACK_REQUESTED",
+      ].includes(eventName)) {
         updates.status = "past_due";
         updates.last_payment_id = payment.id || null;
         updates.last_payment_status = payment.status || eventName;
