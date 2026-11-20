@@ -37,6 +37,7 @@ Deno.serve(async (req) => {
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const asaasKey = Deno.env.get("ASAAS_API_KEY");
+    const asaasBase = Deno.env.get("ASAAS_API_BASE_URL") || "https://api.asaas.com/v3";
     if (!supabaseUrl || !anonKey || !serviceKey || !asaasKey) {
       return json({ error: "Configuração do servidor incompleta." }, 500);
     }
@@ -107,7 +108,7 @@ Deno.serve(async (req) => {
       let paymentUrl: string | null = null;
       try {
         const statusResponse = await fetch(
-          "https://api-sandbox.asaas.com/v3/subscriptions/" + saved.asaas_subscription_id + "/payments?limit=1",
+          asaasBase + "/subscriptions/" + saved.asaas_subscription_id + "/payments?limit=1",
           { headers: { "access_token": asaasKey, "Accept": "application/json" } },
         );
         const statusData = await statusResponse.json();
@@ -130,7 +131,6 @@ Deno.serve(async (req) => {
       .eq("company_id", companyId)
       .maybeSingle();
 
-    const asaasBase = "https://api-sandbox.asaas.com/v3";
     const asaasHeaders = {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -139,24 +139,33 @@ Deno.serve(async (req) => {
     };
 
     if (current && ["pending", "active", "past_due"].includes(current.status)) {
-      let paymentUrl: string | null = null;
-      try {
-        const paymentsResponse = await fetch(
-          asaasBase + "/subscriptions/" + current.asaas_subscription_id + "/payments?limit=1",
-          { headers: asaasHeaders },
-        );
-        const paymentsData = await paymentsResponse.json();
-        paymentUrl = paymentsData.data?.[0]?.invoiceUrl || paymentsData.data?.[0]?.bankSlipUrl || null;
-      } catch (_) {
-        // A cobrança pode ainda não estar disponível.
+      // Só reutiliza uma assinatura que realmente existe na conta Asaas selecionada.
+      // Isso permite migrar do Sandbox para Produção sem bloquear a nova contratação
+      // por causa de um ID de assinatura criado no ambiente anterior.
+      const existingResponse = await fetch(
+        asaasBase + "/subscriptions/" + current.asaas_subscription_id,
+        { headers: asaasHeaders },
+      ).catch(() => null);
+      if (existingResponse?.ok) {
+        let paymentUrl: string | null = null;
+        try {
+          const paymentsResponse = await fetch(
+            asaasBase + "/subscriptions/" + current.asaas_subscription_id + "/payments?limit=1",
+            { headers: asaasHeaders },
+          );
+          const paymentsData = await paymentsResponse.json();
+          paymentUrl = paymentsData.data?.[0]?.invoiceUrl || paymentsData.data?.[0]?.bankSlipUrl || null;
+        } catch (_) {
+          // A cobrança pode ainda não estar disponível.
+        }
+        return json({
+          success: true,
+          already_exists: true,
+          status: current.status,
+          payment_url: paymentUrl,
+          message: "Esta empresa já possui uma assinatura em andamento.",
+        });
       }
-      return json({
-        success: true,
-        already_exists: true,
-        status: current.status,
-        payment_url: paymentUrl,
-        message: "Esta empresa já possui uma assinatura em andamento.",
-      });
     }
 
     if (!customerName || ![11, 14].includes(cpfCnpj.length)) {
