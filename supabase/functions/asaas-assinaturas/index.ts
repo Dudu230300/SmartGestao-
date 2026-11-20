@@ -82,13 +82,17 @@ Deno.serve(async (req) => {
       console.error("Falha ao validar company_members:", membershipError.message);
       return json({ error: "Não foi possível validar o acesso à empresa. Tente sair e entrar novamente." }, 403);
     }
-    if (!membership || !["owner", "admin"].includes(String(membership.role || "").toLowerCase())) {
-      console.error("Acesso negado à assinatura:", {
+    if (!membership) {
+      console.error("Acesso negado à assinatura: usuário não pertence à empresa.", {
         company_id: companyId,
         user_id: userData.user.id,
-        role: membership?.role || null,
       });
-      return json({ error: "Sua conta não tem permissão de proprietário ou administrador nesta empresa." }, 403);
+      return json({ error: "Você não tem acesso a esta empresa." }, 403);
+    }
+    // Qualquer membro pode consultar se a empresa possui acesso ativo.
+    // Somente owner/admin podem criar ou alterar a assinatura.
+    if (body.action !== "status" && !["owner", "admin"].includes(String(membership.role || "").toLowerCase())) {
+      return json({ error: "Somente o proprietário ou administrador pode gerenciar a assinatura." }, 403);
     }
 
     if (body.action === "status") {
@@ -259,7 +263,7 @@ Deno.serve(async (req) => {
       cycle: "MONTHLY",
       next_due_date: dueDate,
       payment_url: paymentUrl,
-      message: "Assinatura criada no ambiente de testes. O acesso só será ativado após confirmação do pagamento.",
+      message: "Assinatura criada. O acesso será ativado após a confirmação do pagamento.",
     });
   } catch (error) {
     console.error("asaas-assinaturas:", error);
