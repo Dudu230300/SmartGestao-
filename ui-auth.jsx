@@ -118,7 +118,7 @@ function CompanyGate({user,auto,onPick,onSignOut}){
 }
 
 function Root(){
-  const [demo,setDemo] = useState(!sb), [sess,setSess] = useState(sb?undefined:null), [comp,setComp] = useState(null), [troca,setTroca] = useState(false), [recovery,setRecovery] = useState(false);
+  const [demo,setDemo] = useState(!sb || location.hash==="#demo"), [sess,setSess] = useState(sb?undefined:null), [comp,setComp] = useState(null), [troca,setTroca] = useState(false), [recovery,setRecovery] = useState(false);
   useEffect(()=>{
     if(!sb) return;
     sb.auth.getSession().then(r=>setSess(r.data.session));
@@ -126,7 +126,7 @@ function Root(){
     return ()=>r.data.subscription.unsubscribe();
   },[]);
   const sair = () => sb.auth.signOut();
-  if(demo) return <App ctx={{real:false,repo:repoLocal,onExit:sb?()=>setDemo(false):null}}/>;
+  if(demo) return <App ctx={{real:false,repo:repoLocal,onExit:sb?()=>{history.replaceState(null,"",location.pathname);setDemo(false);}:null}}/>;
   if(sess===undefined) return <div className="empty">Carregando…</div>;
   if(recovery && sess) return <PasswordRecoveryScreen/>;
   if(!sess) return <AuthScreen onDemo={()=>setDemo(true)}/>;
