@@ -64,12 +64,13 @@ function App({ctx}){
         onSave={r=>upsert("lancamentos",r)} onDel={id=>remove("lancamentos",id)}/>;
     })()
   };
-  const current=MENU.find(m=>m[0]===page)||MENU[0];
+  const menu=real && !["owner","admin"].includes(String(ctx.company.role||"").toLowerCase())?MENU.filter(m=>m[0]!=="assinatura"):MENU;
+  const current=menu.find(m=>m[0]===page)||menu[0];
   return <div className="app">
     <aside className={"side"+(open?" open":"")}>
       <div className="logo"><i><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3.5 34 9v10.2c0 8.2-5.8 13.8-14 17.3C11.8 33 6 27.4 6 19.2V9l14-5.5Z" fill="none" stroke="currentColor" strokeWidth="2.5"/><path d="M13 25V15h4l6 7v-7h4v10h-4l-6-7v7z" fill="currentColor"/></svg></i><span>SmartGestão<small>GESTÃO INTELIGENTE</small></span></div>
       <div className="nav-caption">MENU PRINCIPAL</div>
-      <nav className="nav">{MENU.map(m=><button key={m[0]} aria-current={page===m[0]?"page":undefined} className={page===m[0]?"on":""} onClick={()=>go(m[0])}><span className="nav-icon">{m[1]}</span><span className="nav-label">{m[2]}</span>{page===m[0]&&<i className="nav-active"/>}</button>)}</nav>
+      <nav className="nav">{menu.map(m=><button key={m[0]} aria-current={page===m[0]?"page":undefined} className={page===m[0]?"on":""} onClick={()=>go(m[0])}><span className="nav-icon">{m[1]}</span><span className="nav-label">{m[2]}</span>{page===m[0]&&<i className="nav-active"/>}</button>)}</nav>
       <div className="side-bottom"><div className="side-status"><span className="status-dot"/> Sistema operacional</div>
         <div className="sfoot">{real?<div><b>{ctx.company.name}</b><span className="user-email">{ctx.user.email}</span><div className="account-actions"><button onClick={ctx.onSwitch}>Trocar empresa</button><button onClick={ctx.onExit}>Sair</button></div></div>:<div><b>Modo demonstração</b><span className="user-email">Dados salvos neste navegador</span>{ctx.onExit&&<div className="account-actions"><button onClick={ctx.onExit}>Voltar ao login</button></div>}</div>}</div>
       </div>
