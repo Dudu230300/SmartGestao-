@@ -1,6 +1,6 @@
 // ARQUIVO: app.jsx — menu, telas, regras de negócio e inicialização
 /* ============ APLICAÇÃO ============ */
-const MENU = [["dashboard","📊","Painel"],["ordens","🛠️","Ordens de serviço"],["clientes","👥","Clientes"],["equipamentos","📱","Equipamentos"],["estoque","📦","Estoque de peças"],["financeiro","💰","Financeiro"]];
+const MENU = [["dashboard","📊","Painel"],["ordens","🛠️","Ordens de serviço"],["clientes","👥","Clientes"],["equipamentos","📱","Equipamentos"],["estoque","📦","Estoque de peças"],["financeiro","💰","Financeiro"],["assinatura","💳","Assinatura"]];
 function App({ctx}){
   const real=ctx.real,R=ctx.repo;
   const [db,setDb]=useState(null),[page,setPage]=useState("dashboard"),[open,setOpen]=useState(false),[msg,setMsg]=useState("");
@@ -29,7 +29,7 @@ function App({ctx}){
   const wa=r=><a className="btn s n" style={{textDecoration:"none"}} target="_blank" rel="noopener noreferrer" href={"https://wa.me/55"+String(r.whatsapp).replace(/\D/g,"")}>WhatsApp</a>;
   const SOON={};
   const telas={
-    dashboard:<Dashboard db={db} go={go}/>,
+    dashboard:<Dashboard db={db} go={go}/>,\n    assinatura:<SubscriptionScreen ctx={ctx}/>,
     clientes:<Crud title="Clientes" sub="Cadastro de clientes e contatos." label="cliente" newLabel="Novo cliente" rows={db.clientes}
       defaults={real?{nome:"",telefone:"",email:"",documento:""}:{nome:"",telefone:"",whatsapp:""}}
       fields={real?[{k:"nome",l:"Nome completo",req:1,w:1},{k:"telefone",l:"Telefone / WhatsApp",t:"tel",req:1},{k:"email",l:"E-mail",t:"email"},{k:"documento",l:"CPF / CNPJ"}]:[{k:"nome",l:"Nome completo",req:1,w:1},{k:"telefone",l:"Telefone",t:"tel"},{k:"whatsapp",l:"WhatsApp",t:"tel",req:1}]}
