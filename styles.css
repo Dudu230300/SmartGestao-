@@ -303,3 +303,35 @@ td{font-size:12px}
 .card{border-radius:13px}
 }
 @media(max-width:390px){.workspace-company{max-width:100px}.workspace-overline{letter-spacing:.8px}.grid{gap:8px}}
+
+
+/* ===== Assinatura SmartGestão ===== */
+.subscription-page{max-width:920px;margin:0 auto}
+.sub-heading{margin-bottom:20px}
+.sub-heading h1{margin:5px 0 3px}
+.sub-plan,.sub-status-card,.sub-form{padding:22px 24px;margin-bottom:16px;background:#fff}
+.sub-plan-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+.sub-kicker{font-size:9px;font-weight:800;letter-spacing:1.5px;color:#6d8b80}
+.sub-plan h2{margin:7px 0 6px;font-size:23px;color:#2d4050}
+.sub-plan p{margin:0;color:#7b8790;font-size:13px;line-height:1.6}
+.sub-price{text-align:right;white-space:nowrap}
+.sub-price strong{display:block;color:#345b50;font-size:28px;letter-spacing:-1px}
+.sub-price span{display:block;color:#87929a;font-size:11px;margin-top:2px}
+.sub-includes{display:flex;gap:12px 24px;flex-wrap:wrap;margin-top:22px;padding-top:16px;border-top:1px solid #edf0f2;color:#61736c;font-size:11px;font-weight:600}
+.sub-status-card h3,.sub-form h3{margin:0 0 13px;color:#344653;font-size:15px}
+.sub-status-card>p{display:flex;align-items:center;gap:9px;margin:0 0 9px;color:#4c5e68;font-size:13px}
+.sub-status-dot{width:8px;height:8px;border-radius:50%;background:#aab3ba;display:inline-block}
+.sub-status-dot.pending{background:#d49a45;box-shadow:0 0 0 3px #fbf1df}
+.sub-status-dot.active{background:#4e9b73;box-shadow:0 0 0 3px #e4f2e9}
+.sub-pay-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin-top:8px;padding:11px 16px}
+.sub-form>p{margin:0 0 18px}
+.sub-form .fld{margin-bottom:13px}
+.sub-form .btn{margin-top:8px}
+.sub-note{font-size:10px;color:#98a2aa;margin:12px 0 0}
+@media(max-width:600px){
+.sub-plan,.sub-status-card,.sub-form{padding:18px 16px}
+.sub-plan-top{gap:12px}
+.sub-plan h2{font-size:20px}
+.sub-price strong{font-size:23px}
+.sub-includes{display:grid;gap:9px}
+}
