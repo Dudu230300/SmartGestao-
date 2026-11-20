@@ -8,7 +8,18 @@
 <link rel="stylesheet" href="styles.css?v=20261119-login1">
 </head>
 <body>
-<div id="root"></div>
+<div id="root"><div style="font:16px Arial,sans-serif;color:#344256;padding:32px;text-align:center">Carregando SmartGestão…</div></div>
+<script>
+(function(){
+  function mostrar(t){
+    var el=document.getElementById("root");
+    if(el) el.innerHTML='<div style="font:15px Arial,sans-serif;color:#273444;background:#fff;padding:24px;max-width:720px;margin:40px auto;border:1px solid #e4e7ec;border-radius:12px"><h2 style="margin-top:0">Não foi possível iniciar o SmartGestão</h2><p>Detalhe técnico:</p><pre style="white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f6f8;padding:12px;border-radius:8px">'+String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})+'</pre><p>Envie esta mensagem para corrigirmos.</p></div>';
+  }
+  window.addEventListener("error",function(e){mostrar((e.message||"Falha ao carregar recurso")+(e.filename?" — "+e.filename:"")+(e.lineno?":"+e.lineno:""));});
+  window.addEventListener("unhandledrejection",function(e){var r=e.reason;mostrar(r&&r.stack||r&&r.message||String(r));});
+  window.setTimeout(function(){if(!window.React||!window.ReactDOM||!window.Babel) mostrar("Uma biblioteca necessária (React, ReactDOM ou Babel) não carregou. Verifique a conexão ou bloqueio de CDN.");},7000);
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
