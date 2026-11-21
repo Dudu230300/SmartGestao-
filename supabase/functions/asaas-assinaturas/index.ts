@@ -109,6 +109,32 @@ Deno.serve(async (req) => {
         }, 500);
       }
       if (!saved) return json({ has_subscription: false });
+
+      // Confirma que a assinatura salva pertence ao ambiente Asaas atualmente configurado.
+      // Isso evita considerar como ativa uma assinatura criada anteriormente no Sandbox.
+      const productionSubscriptionResponse = await fetch(
+        asaasBase + "/subscriptions/" + saved.asaas_subscription_id,
+        { headers: { "access_token": asaasKey, "Accept": "application/json" } },
+      );
+      if (productionSubscriptionResponse.status === 404) {
+        await admin.from("company_subscriptions")
+          .update({ status: "inactive", updated_at: new Date().toISOString() })
+          .eq("company_id", companyId);
+        return json({
+          has_subscription: true,
+          status: "inactive",
+          amount: saved.amount,
+          next_due_date: saved.next_due_date,
+          payment_url: null,
+        });
+      }
+      if (!productionSubscriptionResponse.ok) {
+        console.error("Falha ao validar assinatura no Asaas:", productionSubscriptionResponse.status);
+        return json({
+          error: "Não foi possível validar a assinatura na conta Asaas de produção.",
+        }, 502);
+      }
+
       let paymentUrl: string | null = null;
       try {
         const statusResponse = await fetch(
