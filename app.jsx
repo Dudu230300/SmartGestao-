@@ -12,7 +12,7 @@ function App({ctx}){
       .then(data=>{if(alive)setDb(data);})
       .catch(e=>{if(alive)setMsg(erroPt(e));});
     return ()=>{alive=false;};
-  },[real,ctx.company.id,subscriptionState]);
+  },[real,ctx.company?.id,subscriptionState]);
   useEffect(()=>{
     if(!real||subscriptionState!=="checking") return;
     let alive=true;
@@ -23,7 +23,7 @@ function App({ctx}){
         else setSubscriptionState(data.has_subscription&&data.status==="active"?"active":"inactive");
       }).catch(()=>{if(alive)setSubscriptionState("unverified");});
     return ()=>{alive=false;};
-  },[real,ctx.company.id,subscriptionState]);
+  },[real,ctx.company?.id,subscriptionState]);
   useEffect(()=>{if(db&&!real)R.save(db);},[db]);
   if(real&&subscriptionState==="checking") return <div className="empty">Verificando a assinatura da empresa…</div>;
   if(real&&subscriptionState==="inactive") return <SubscriptionScreen ctx={ctx}/>;
