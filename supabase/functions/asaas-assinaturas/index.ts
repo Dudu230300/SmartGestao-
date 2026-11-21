@@ -129,6 +129,13 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Bloqueia novas cobranças reais até a aprovação explícita da conta de produção.
+    if (Deno.env.get("ASAAS_BILLING_ENABLED") !== "true") {
+      return json({
+        error: "A contratação online será liberada após a aprovação da conta de produção do SmartGestão no Asaas. Nenhuma cobrança foi criada.",
+      }, 403);
+    }
+
     const { data: current } = await admin
       .from("company_subscriptions")
       .select("status, asaas_subscription_id")
