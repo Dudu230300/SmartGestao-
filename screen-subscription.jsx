@@ -89,7 +89,7 @@ function SubscriptionScreen({ctx}){
       </div>
       {erro&&<div className="err" role="alert">{erro}</div>}
       <button className="btn" disabled={busy}>{busy?"Preparando cobrança…":"Contratar por R$ 39,90/mês"}</button>
-      <p className="sub-note">Ambiente de testes: nenhuma cobrança real será realizada nesta etapa.</p>
+      <p className="sub-note">A contratação online será liberada após a aprovação da conta de produção do SmartGestão no Asaas. Não tente contratar enquanto essa validação estiver pendente.</p>
     </form>}
     {erro&&status!=="none"&&<div className="err" role="alert">{erro}</div>}
   </div>;
