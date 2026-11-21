@@ -5,7 +5,14 @@ function App({ctx}){
   const real=ctx.real,R=ctx.repo;
   const [db,setDb]=useState(null),[page,setPage]=useState("dashboard"),[open,setOpen]=useState(false),[msg,setMsg]=useState("");
   const [subscriptionState,setSubscriptionState]=useState(real?"checking":"active");
-  useEffect(()=>{R.load(real?ctx.company.id:undefined).then(setDb).catch(e=>setMsg(erroPt(e)));},[]);
+  useEffect(()=>{
+    if(real && subscriptionState!=="active") return;
+    let alive=true;
+    R.load(real?ctx.company.id:undefined)
+      .then(data=>{if(alive)setDb(data);})
+      .catch(e=>{if(alive)setMsg(erroPt(e));});
+    return ()=>{alive=false;};
+  },[real,ctx.company.id,subscriptionState]);
   useEffect(()=>{
     if(!real||subscriptionState!=="checking") return;
     let alive=true;
